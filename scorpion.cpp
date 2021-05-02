@@ -82,6 +82,17 @@ void ScorpionModel::draw()
 		glPopMatrix();
 	}
 
+	glDisable(GL_LIGHTING);
+glPushMatrix();
+setAmbientColor(.5f, .5f, .5f);
+setDiffuseColor(1, 0.718, 0.773);
+glTranslated(-5, 0, -5);
+//glColor3f(COLOR_GREEN);
+glScalef(10,0,10);
+drawBox(1, 1, 1);
+glPopMatrix();
+glEnable(GL_LIGHTING);
+
 	// main body
 	setAmbientColor(.1f, .1f, .1f);
 	setDiffuseColor(0.43,0.30,0.1);

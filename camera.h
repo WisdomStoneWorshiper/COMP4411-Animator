@@ -81,6 +81,8 @@ public:
     { mLookAt = lookAt; mDirtyTransform = true; }
     inline Vec3f getLookAt() const
     { return mLookAt; }
+
+    void frameAll();
     
     //---[ Interactive Adjustment ]------------------------
     // these should be used from a mouse event handling routine that calls

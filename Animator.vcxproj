@@ -170,6 +170,8 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="marchingcube.cpp" />
+    <ClCompile Include="metaballs.cpp" />
     <ClCompile Include="modelerapp.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -260,12 +262,15 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="scorpion.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="curve.h" />
     <ClInclude Include="curveevaluator.h" />
     <ClInclude Include="linearcurveevaluator.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="marchingcube.h" />
+    <ClInclude Include="metaballs.h" />
     <ClInclude Include="modelerdraw.h" />
     <ClInclude Include="modelerui.h" />
     <ClInclude Include="modeleruiwindows.h" />
@@ -281,6 +286,7 @@
     <ClInclude Include="rect.h" />
     <ClInclude Include="rulerwindow.h" />
     <ClInclude Include="mat.h" />
+    <ClInclude Include="scorpion.h" />
     <ClInclude Include="vec.h" />
   </ItemGroup>
   <ItemGroup>

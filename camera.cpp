@@ -138,11 +138,7 @@ void Camera::calculateViewingTransformParameters()
 
 Camera::Camera() 
 {
-	mAzimuth = mTwist = 0.0f;
-	mElevation = 0.7f;
-	mDolly = -20.0f;
-
-	mLookAt = Vec3f( 0, 0, 0 );
+	frameAll();
 
 	mCurrentMouseAction = kActionNone;
 
@@ -155,6 +151,16 @@ Camera::Camera()
 	mNumKeyframes = 0;
 }
 
+void Camera::frameAll() {
+	setElevation(0.566666961);
+	setDolly(-24.6399956);
+	setAzimuth(3.81936955);
+	setLookAt(Vec3f(0, 0, 0));
+	setTwist(0);
+	mPosition = Vec3f(10, 10, 10);
+	mDirtyTransform = true;
+}
+	
 void Camera::createCurves(float t, float maxX)
 {
 	mKeyframes[AZIMUTH] = new Curve(maxX, Point(t, mAzimuth));

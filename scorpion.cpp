@@ -326,8 +326,9 @@ void ScorpionModel::draw() {
 		glTranslated(0, 0, -0.05);
 		drawCylinder(0.1, .05, .05);
 		drawTriangle(0, 0, -0.2, -0.2, 0, 0, 0.2, 0, 0);
-		
+		glPushMatrix();
 		SpawnParticles(cam_matrix, 10);
+		glPopMatrix();
 		glPopMatrix();
 	}
 	glPopMatrix();

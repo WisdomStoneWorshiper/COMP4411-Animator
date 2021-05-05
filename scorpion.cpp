@@ -66,6 +66,7 @@ ScorpionModel::ScorpionModel(int x, int y, int w, int h, char* label) : ModelerV
 
 	mc = new MarchingCube(start, end, step);
 	mc->setMetaBalls(mb, 0.3f);
+	srand(NULL);
 	// mc->setStepValue(2);
 }
 
@@ -77,23 +78,26 @@ Mat4f getModelViewMatrix() {
 }
 
 void SpawnParticles(Mat4f cameraTransform, int num_of_par) { 
-	srand(NULL);
+	
+	printf("p rand :%d\n", rand() % 20);
 	ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
 	if (ps->isSimulate()) {
 		Mat4f world_matrix = cameraTransform.inverse() * getModelViewMatrix();
 		Vec4f pos = world_matrix * Vec4f(0,0,0,1);
 		double mass = 1;
-		Vec3d p_pos;
-		p_pos[0] = (rand() % 5) / 10.0 + pos[0];
-		p_pos[1] = (rand() % 5) / 10.0 + pos[1];
-		p_pos[2] = (rand() % 5) / 10.0 + pos[2];
-		Vec3d p_vel;
-		p_vel[0] = 0;
-		p_vel[1] = -(rand() % 10) / 10.0;
-		p_vel[2] = -(rand() % 10) / 10.0;
-		double time = 10;
-		Particle p(p_pos, p_vel, time, mass);
-		ps->add_par(&p);
+		for (int i = 0; i < num_of_par; ++i) {
+			Vec3d p_pos;
+			p_pos[0] = pos[0];
+			p_pos[1] = pos[1];
+			p_pos[2] = pos[2];
+			Vec3d p_vel;
+			p_vel[0] = (rand() % 20) - 10;
+			p_vel[1] = -(rand() % 10);
+			p_vel[2] = (rand() % 10);
+			double time = 0.3;
+			Particle p(p_pos, p_vel, time, mass);
+			ps->add_par(&p);
+		}
 	}
 }
 
@@ -323,7 +327,7 @@ void ScorpionModel::draw() {
 		drawCylinder(0.1, .05, .05);
 		drawTriangle(0, 0, -0.2, -0.2, 0, 0, 0.2, 0, 0);
 		
-		SpawnParticles(cam_matrix, 1);
+		SpawnParticles(cam_matrix, 10);
 		glPopMatrix();
 	}
 	glPopMatrix();

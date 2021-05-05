@@ -31,7 +31,7 @@ ParticleSystem::ParticleSystem()
 ParticleSystem::~ParticleSystem() 
 {
 	// TODO
-
+	clearBaked();
 }
 
 
@@ -88,15 +88,24 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 {
 
 	// TODO
+	//printf("curr_time: %f\n", t);
 	if (simulate) {
 		map<double, vector<Particle>>::iterator itr = cached_par.find(t);
 		if (itr != cached_par.end()) {
 			par = (*itr).second;
 		} else {
 			bake_fps = t - last_update;
-			for (auto& p : par) {
-				p.update(bake_fps);
+			vector<int> delete_list;
+			for (int i = 0; i < par.size(); ++i) {
+				par[i].update(bake_fps);
+				if (par[i].get_life() <= 0) {
+					delete_list.push_back(i);
+				}
 			}
+			for (int i = delete_list.size() - 1; i >= 0; --i) {
+				par.erase(par.begin() + delete_list[i]);
+			}
+	
 			bakeParticles(t);
 		}
 		last_update = t;

@@ -10,7 +10,8 @@
 #include "metaballs.h"
 #include "bitmap.h"
 
-
+#include "mat.h"
+#include "particleSystem.h"
 
 class ScorpionModel : public ModelerView
 {

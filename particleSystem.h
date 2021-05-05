@@ -17,7 +17,12 @@
 #define __PARTICLE_SYSTEM_H__
 
 #include "vec.h"
+#include "particle.h"
+#include <vector>
+#include <map>
 
+
+using namespace std;
 
 
 class ParticleSystem {
@@ -72,10 +77,13 @@ public:
 	bool isDirty() { return dirty; }
 	void setDirty(bool d) { dirty = d; }
 
-
+	void add_par(Particle*);
 
 protected:
 	
+	vector<Particle> par;
+	map<double, vector<Particle>> cached_par;
+	float last_update;
 
 
 	/** Some baking-related state **/

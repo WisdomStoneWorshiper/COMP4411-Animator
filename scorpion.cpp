@@ -69,11 +69,40 @@ ScorpionModel::ScorpionModel(int x, int y, int w, int h, char* label) : ModelerV
 	// mc->setStepValue(2);
 }
 
+Mat4f getModelViewMatrix() {
+	GLfloat m[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	Mat4f matMV(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[11], m[12], m[13], m[14], m[15]);
+	return matMV.transpose(); // because the matrix GL returns is column major
+}
+
+void SpawnParticles(Mat4f cameraTransform,int num_of_par) { 
+	srand(NULL);
+	ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
+	if (ps->isSimulate()) {
+		Mat4f world_matrix = cameraTransform.inverse() * getModelViewMatrix();
+		Vec4f pos = world_matrix * Vec4f(1, 1, 1, 1);
+		double mass = 1;
+		Vec3d p_pos;
+		p_pos[0] = (rand() % 5) / 10.0 + pos[0];
+		p_pos[1] = (rand() % 5) / 10.0 + pos[1];
+		p_pos[2] = (rand() % 5) / 10.0 + pos[2];
+		Vec3d p_vel;
+		p_vel[0] = 0;
+		p_vel[1] = -(rand() % 10) / 10.0;
+		p_vel[2] = -(rand() % 10) / 10.0;
+		double time = 10;
+		Particle p(p_pos, p_vel, time, mass);
+		ps->add_par(&p);
+	}
+}
+
 void ScorpionModel::draw() {
 	// This call takes care of a lot of the nasty projection
 	// matrix stuff.  Unless you want to fudge directly with the
 	// projection matrix, don't bother with this ...
 	ModelerView::draw();
+	
 	GLfloat lightPos[] = {(float)VAL(LIGHT_X), (float)VAL(LIGHT_Y), (float)VAL(LIGHT_Z), 0};
 	GLfloat lightIntensity[] = {(float)VAL(LIGHT_INTENSITY), (float)VAL(LIGHT_INTENSITY), (float)VAL(LIGHT_INTENSITY),
 								1};
@@ -293,6 +322,8 @@ void ScorpionModel::draw() {
 		glTranslated(0, 0, -0.05);
 		drawCylinder(0.1, .05, .05);
 		drawTriangle(0, 0, -0.2, -0.2, 0, 0, 0.2, 0, 0);
+		Mat4f cam_matrix = getModelViewMatrix();
+		SpawnParticles(cam_matrix, 1);
 		glPopMatrix();
 	}
 	glPopMatrix();
@@ -432,6 +463,8 @@ int main() {
 	controls[METABALLS] = ModelerControl("Change to Metaballs", 0, 1, 1, 0);
 	// controls[MTBALL_STEP] = ModelerControl("Metaballs Step", 0.6, 1, 0.1f,
 	// 0.8f);
+	ParticleSystem* ps = new ParticleSystem();
+	ModelerApplication::Instance()->SetParticleSystem(ps);
 
 	ModelerApplication::Instance()->Init(&createScorpionModel, controls, NUMCONTROLS);
 	return ModelerApplication::Instance()->Run();

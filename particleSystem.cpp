@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <math.h>
 #include <limits.h>
-
+#include <ctime>
 
 /***************
  * Constructors
@@ -54,7 +54,7 @@ void ParticleSystem::startSimulation(float t)
 	bake_end_time = -1;
 	simulate = true;
 	dirty = true;
-
+	last_update = t;
 }
 
 /** Stop the simulation */
@@ -81,11 +81,26 @@ void ParticleSystem::resetSimulation(float t)
 
 }
 
+void ParticleSystem::add_par(Particle* p) { par.push_back(*p); }
+
 /** Compute forces and update particles **/
 void ParticleSystem::computeForcesAndUpdateParticles(float t)
 {
 
 	// TODO
+	if (simulate) {
+		map<double, vector<Particle>>::iterator itr = cached_par.find(t);
+		if (itr != cached_par.end()) {
+			par = (*itr).second;
+		} else {
+			bake_fps = t - last_update;
+			for (auto& p : par) {
+				p.update(bake_fps);
+			}
+			bakeParticles(t);
+		}
+		last_update = t;
+	}
 }
 
 
@@ -94,6 +109,11 @@ void ParticleSystem::drawParticles(float t)
 {
 
 	// TODO
+	if (simulate) {
+		for (auto& p : par) {
+			p.draw();
+		}
+	}
 }
 
 
@@ -106,6 +126,8 @@ void ParticleSystem::bakeParticles(float t)
 {
 
 	// TODO
+	pair<double, vector<Particle>> temp((double)t, par);
+	cached_par.insert(temp);
 }
 
 /** Clears out your data structure of baked particles */
@@ -113,6 +135,7 @@ void ParticleSystem::clearBaked()
 {
 
 	// TODO
+	cached_par.clear();
 }
 
 

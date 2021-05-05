@@ -77,13 +77,18 @@ Mat4f getModelViewMatrix() {
 	return matMV.transpose(); // because the matrix GL returns is column major
 }
 
-void SpawnParticles(Mat4f cameraTransform, int num_of_par) { 
+void SpawnParticles(Mat4f cameraTransform, Mat4f root, int num_of_par) { 
 	
-	printf("p rand :%d\n", rand() % 20);
+	//printf("p rand :%d\n", rand() % 20);
 	ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
 	if (ps->isSimulate()) {
 		Mat4f world_matrix = cameraTransform.inverse() * getModelViewMatrix();
 		Vec4f pos = world_matrix * Vec4f(0,0,0,1);
+		Mat4f root_world_matrix = cameraTransform.inverse() *root;
+		Vec4f root_pos = root_world_matrix * Vec4f(0, 0, 0, 1);
+		Vec4f vel_dir = pos - root_pos;
+		printf("p: %f %f %f\n", vel_dir[0], vel_dir[1], vel_dir[2]);
+		//printf("r: %f %f %f\n", root_pos[0], root_pos[1], root_pos[2]);
 		double mass = 1;
 		for (int i = 0; i < num_of_par; ++i) {
 			Vec3d p_pos;
@@ -91,10 +96,13 @@ void SpawnParticles(Mat4f cameraTransform, int num_of_par) {
 			p_pos[1] = pos[1];
 			p_pos[2] = pos[2];
 			Vec3d p_vel;
-			p_vel[0] = (rand() % 20) - 10;
-			p_vel[1] = -(rand() % 10);
-			p_vel[2] = (rand() % 10);
-			double time = 0.3;
+			p_vel[0] = (rand() % 5) - 2.5;
+			p_vel[1] = 5;
+			p_vel[2] = vel_dir[2] * (rand() % 10)*20;
+			/*p_vel[0] = 0;
+			p_vel[1] = -1*signbit(vel_dir[1])*(rand() % 10);
+			p_vel[2] = fabs(vel_dir[2] * 10);*/
+			double time = 0.5;
 			Particle p(p_pos, p_vel, time, mass);
 			ps->add_par(&p);
 		}
@@ -319,15 +327,20 @@ void ScorpionModel::draw() {
 		drawCylinder(0.75, .17, .17);
 		glRotated(VAL(TAIL), 1, 0, 0);
 		glTranslated(0, 0, -0.6);
+		
 		drawCylinder(0.75, .15, .15);
+		glPushMatrix();
+		Mat4f root = getModelViewMatrix();
+		glPopMatrix();
 		// sting
 		glPushMatrix();
 		// setDiffuseColor(0, 1, 1);
+		
 		glTranslated(0, 0, -0.05);
 		drawCylinder(0.1, .05, .05);
 		drawTriangle(0, 0, -0.2, -0.2, 0, 0, 0.2, 0, 0);
 		glPushMatrix();
-		SpawnParticles(cam_matrix, 10);
+		SpawnParticles(cam_matrix,root, 10);
 		glPopMatrix();
 		glPopMatrix();
 	}

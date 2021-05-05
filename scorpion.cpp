@@ -76,12 +76,12 @@ Mat4f getModelViewMatrix() {
 	return matMV.transpose(); // because the matrix GL returns is column major
 }
 
-void SpawnParticles(Mat4f cameraTransform,int num_of_par) { 
+void SpawnParticles(Mat4f cameraTransform, int num_of_par) { 
 	srand(NULL);
 	ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
 	if (ps->isSimulate()) {
 		Mat4f world_matrix = cameraTransform.inverse() * getModelViewMatrix();
-		Vec4f pos = world_matrix * Vec4f(1, 1, 1, 1);
+		Vec4f pos = world_matrix * Vec4f(0,0,0,1);
 		double mass = 1;
 		Vec3d p_pos;
 		p_pos[0] = (rand() % 5) / 10.0 + pos[0];
@@ -102,7 +102,7 @@ void ScorpionModel::draw() {
 	// matrix stuff.  Unless you want to fudge directly with the
 	// projection matrix, don't bother with this ...
 	ModelerView::draw();
-	
+	Mat4f cam_matrix = getModelViewMatrix();
 	GLfloat lightPos[] = {(float)VAL(LIGHT_X), (float)VAL(LIGHT_Y), (float)VAL(LIGHT_Z), 0};
 	GLfloat lightIntensity[] = {(float)VAL(LIGHT_INTENSITY), (float)VAL(LIGHT_INTENSITY), (float)VAL(LIGHT_INTENSITY),
 								1};
@@ -322,7 +322,7 @@ void ScorpionModel::draw() {
 		glTranslated(0, 0, -0.05);
 		drawCylinder(0.1, .05, .05);
 		drawTriangle(0, 0, -0.2, -0.2, 0, 0, 0.2, 0, 0);
-		Mat4f cam_matrix = getModelViewMatrix();
+		
 		SpawnParticles(cam_matrix, 1);
 		glPopMatrix();
 	}

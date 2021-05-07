@@ -26,6 +26,10 @@ private:
     void draw_lsystem(double level);
     std::string st_pattern;
 
+     void textureCylinder(double h, double r1, double r2);
+	int width, height;
+	GLuint texBufferID;
+	GLubyte* bitmap_data = nullptr;
 
     void right_leg(double pos);
     void left_leg(double pos);

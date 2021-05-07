@@ -149,6 +149,7 @@
     <ClCompile Include="beziercurveevaluator.cpp" />
     <ClCompile Include="c2interpolatingcurveevaluator.cpp" />
 	<ClCompile Include="catmullromcurveevaluator.cpp" />
+	<ClCompile Include="bsplinecurveevaluator.cpp" />
     <ClCompile Include="curve.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -271,6 +272,7 @@
     <ClInclude Include="beziercurveevaluator.h" />
     <ClInclude Include="c2interpolatingcurveevaluator.h" />
 	<ClInclude Include="catmullromcurveevaluator.h" />
+	<ClInclude Include="bsplinecurveevaluator.h" />
     <ClInclude Include="curve.h" />
     <ClInclude Include="curveevaluator.h" />
     <ClInclude Include="linearcurveevaluator.h" />

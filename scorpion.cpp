@@ -73,7 +73,7 @@ ScorpionModel::ScorpionModel(int x, int y, int w, int h, char* label) : ModelerV
 	srand(NULL);
 	// mc->setStepValue(2);
 	bitmap_data = readBMP("blue.bmp", width, height);
-	std::cout << bitmap_data;
+	//std::cout << bitmap_data;
 	glGenTextures(1, &texBufferID);
 }
 

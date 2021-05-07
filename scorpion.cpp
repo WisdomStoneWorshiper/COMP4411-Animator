@@ -42,8 +42,12 @@ enum ScorpionModelControls {
 	LIGHT_Y,
 	LIGHT_Z,
 	LIGHT_INTENSITY,
+	DETAIL,
 	FOG_DENSITY,
 	METABALLS,
+	TEXTURE,
+	WINGS,
+	PARTICLE_NUM,
 	NUMCONTROLS
 };
 
@@ -68,6 +72,23 @@ ScorpionModel::ScorpionModel(int x, int y, int w, int h, char* label) : ModelerV
 	mc->setMetaBalls(mb, 0.3f);
 	srand(NULL);
 	// mc->setStepValue(2);
+	bitmap_data = readBMP("blue.bmp", width, height);
+	std::cout << bitmap_data;
+	glGenTextures(1, &texBufferID);
+}
+
+void ScorpionModel::textureCylinder(double h, double r1, double r2) {
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texBufferID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, bitmap_data);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	drawCylinder(h, r1, r2);
+
+	glDisable(GL_TEXTURE_2D);
 }
 
 Mat4f getModelViewMatrix() {
@@ -97,8 +118,12 @@ void SpawnParticles(Mat4f cameraTransform, Mat4f root, int num_of_par) {
 			p_pos[2] = pos[2];
 			Vec3d p_vel;
 			p_vel[0] = (rand() % 5) - 2.5;
-			p_vel[1] = 5;
-			p_vel[2] = vel_dir[2] * (rand() % 10)*20;
+			p_vel[1] = 0;
+			if (VAL(METABALLS) == 1) {
+				p_vel[2] = vel_dir[2] * 10 + (rand() % 1);
+			} else {
+				p_vel[2] = vel_dir[2] * (rand() % 10) * 20;
+			}
 			/*p_vel[0] = 0;
 			p_vel[1] = -1*signbit(vel_dir[1])*(rand() % 10);
 			p_vel[2] = fabs(vel_dir[2] * 10);*/
@@ -133,18 +158,18 @@ void ScorpionModel::draw() {
 		houdini_lsystem();
 		// drawBox(10, 0.01f, 10);
 		glPopMatrix();
+	} else {
+		glDisable(GL_LIGHTING);
+		glPushMatrix();
+		setAmbientColor(.5f, .5f, .5f);
+		setDiffuseColor(1, 0.718, 0.773);
+		glTranslated(-5, 0, -5);
+		// glColor3f(COLOR_GREEN);
+		glScalef(10, 0, 10);
+		drawBox(1, 1, 1);
+		glPopMatrix();
+		glEnable(GL_LIGHTING);
 	}
-
-	glDisable(GL_LIGHTING);
-	glPushMatrix();
-	setAmbientColor(.5f, .5f, .5f);
-	setDiffuseColor(1, 0.718, 0.773);
-	glTranslated(-5, 0, -5);
-	// glColor3f(COLOR_GREEN);
-	glScalef(10, 0, 10);
-	drawBox(1, 1, 1);
-	glPopMatrix();
-	glEnable(GL_LIGHTING);
 
 	// main body
 	setAmbientColor(.1f, .1f, .1f);
@@ -156,21 +181,22 @@ void ScorpionModel::draw() {
 
 	// draw torso
 	glPushMatrix();
-	drawCylinder(0.25, .55, .60);
+	VAL(TEXTURE) == 1 ? textureCylinder(0.25, .55, .60) : drawCylinder(0.25, .55, .60);
 	glTranslated(0, 0, 0.25);
-	drawCylinder(0.25, .60, .65);
+	VAL(TEXTURE) == 1 ? textureCylinder(0.25, .60, .65) : drawCylinder(0.25, .60, .65);
 	glTranslated(0, 0, 0.25);
-	drawCylinder(0.25, .65, .75);
+	VAL(TEXTURE) == 1 ? textureCylinder(0.25, .65, .75) : drawCylinder(0.25, .65, .75);
 	glTranslated(0, 0, 0.25);
-	drawCylinder(0.25, .75, .75);
+	VAL(TEXTURE) == 1 ? textureCylinder(0.25, .75, .75) : drawCylinder(0.25, .75, .75);
 	glTranslated(0, 0, 0.25);
-	drawCylinder(0.25, .75, .75);
+	VAL(TEXTURE) == 1 ? textureCylinder(0.25, .75, .75) : drawCylinder(0.25, .75, .75);
 	glTranslated(0, 0, 0.25);
-	drawCylinder(0.25, .75, .65);
+	VAL(TEXTURE) == 1 ? textureCylinder(0.25, .75, .65) : drawCylinder(0.25, .75, .65);
 	glTranslated(0, 0, 0.25);
-	drawCylinder(0.25, .65, .60);
+	VAL(TEXTURE) == 1 ? textureCylinder(0.25, .65, .60) : drawCylinder(0.25, .65, .60);
 	glTranslated(0, 0, 0.25);
-	drawCylinder(0.25, .60, .55);
+	VAL(TEXTURE) == 1 ? textureCylinder(0.25, .60, .55) : drawCylinder(0.25, .60, .55);
+
 
 	// face
 	drawSphere(0.60);
@@ -182,97 +208,101 @@ void ScorpionModel::draw() {
 	setDiffuseColor(COLOR_GREEN);
 	glPopMatrix();
 
-	// left arm
-	glPushMatrix();
-	// left back arm
-	setDiffuseColor(0.56, 0.39, 0.12);
-	glTranslated(-0.35, 0, 2.15);
-	glScaled(1 / 1.5, 1 / 0.75, 0.5);
-	glRotated(VAL(L_CLAW), 0.0, 1.0, 0.0);
-	drawCylinder(1, .15, .15);
+	if (VAL(DETAIL) > 2.5) {
+		// left arm
+		glPushMatrix();
+		// left back arm
+		setDiffuseColor(0.56, 0.39, 0.12);
+		glTranslated(-0.35, 0, 2.15);
+		glScaled(1 / 1.5, 1 / 0.75, 0.5);
+		glRotated(VAL(L_CLAW), 0.0, 1.0, 0.0);
+		drawCylinder(1, .15, .15);
 
-	// left middle arm
-	glPushMatrix();
-	glRotated(45, 0.0, 1.0, 0.0);
-	glTranslated(-.75, 0, cos45);
-	drawCylinder(1, .15, .20);
-	// left front arm
-	glPushMatrix();
-	glRotated(45, 0.0, 1.0, 0.0);
-	glRotated(90, 1.0, 0.0, 0.0);
-	glTranslated(-cos45, 1.3, 0);
-	glScaled(2, 5, 2);
-	drawSphere(0.15);
-	glRotated(-90, 1.0, 0.0, 0.0);
-	glRotated(45, 0.0, 1.0, 0.0);
-	setDiffuseColor(0.28, 0.15, 0.03);
+		// left middle arm
+		glPushMatrix();
+		glRotated(45, 0.0, 1.0, 0.0);
+		glTranslated(-.75, 0, cos45);
+		drawCylinder(1, .15, .20);
+		// left front arm
+		glPushMatrix();
+		glRotated(45, 0.0, 1.0, 0.0);
+		glRotated(90, 1.0, 0.0, 0.0);
+		glTranslated(-cos45, 1.3, 0);
+		glScaled(2, 5, 2);
+		drawSphere(0.15);
+		glRotated(-90, 1.0, 0.0, 0.0);
+		glRotated(45, 0.0, 1.0, 0.0);
+		setDiffuseColor(0.28, 0.15, 0.03);
+		if (VAL(DETAIL) > 3.5) {
+			// left claw 1
+			glPushMatrix();
+			glRotated(-VAL(LF_CLAW), 1.0, 0.0, 0.0);
+			glTranslated(0, 0.075, 0.05);
+			glScaled(1 / 2.0, 1 / 3.0, 1 / 2.0);
+			drawCylinder(0.65, .13, .04);
+			glPopMatrix();
 
-	// left claw 1
-	glPushMatrix();
-	glRotated(-VAL(LF_CLAW), 1.0, 0.0, 0.0);
-	glTranslated(0, 0.075, 0.05);
-	glScaled(1 / 2.0, 1 / 3.0, 1 / 2.0);
-	drawCylinder(0.65, .13, .04);
-	glPopMatrix();
+			// left claw 2
+			glPushMatrix();
+			glRotated(VAL(LF_CLAW), 1.0, 0.0, 0.0);
+			glTranslated(0, -0.075, 0.05);
+			glScaled(1 / 2.0, 1 / 3.0, 1 / 2.0);
+			drawCylinder(0.65, .13, .04);
+			glPopMatrix();
+		}
 
-	// left claw 2
-	glPushMatrix();
-	glRotated(VAL(LF_CLAW), 1.0, 0.0, 0.0);
-	glTranslated(0, -0.075, 0.05);
-	glScaled(1 / 2.0, 1 / 3.0, 1 / 2.0);
-	drawCylinder(0.65, .13, .04);
-	glPopMatrix();
+		glPopMatrix();
+		glPopMatrix();
+		glPopMatrix();
+		// end left arm
 
-	glPopMatrix();
-	glPopMatrix();
-	glPopMatrix();
-	// end left arm
+		// right arm
+		glPushMatrix();
+		// right back arm
+		setDiffuseColor(0.56, 0.39, 0.12);
+		glTranslated(0.35, 0, 2.15);
+		glScaled(1 / 1.5, 1 / 0.75, 0.5);
+		glRotated(VAL(R_CLAW), 0.0, 1.0, 0.0);
+		drawCylinder(1, .15, .15);
 
-	// right arm
-	glPushMatrix();
-	// right back arm
-	setDiffuseColor(0.56, 0.39, 0.12);
-	glTranslated(0.35, 0, 2.15);
-	glScaled(1 / 1.5, 1 / 0.75, 0.5);
-	glRotated(VAL(R_CLAW), 0.0, 1.0, 0.0);
-	drawCylinder(1, .15, .15);
+		// right middle arm
+		glPushMatrix();
+		glRotated(-45, 0.0, 1.0, 0.0);
+		glTranslated(.73, 0, cos45);
+		drawCylinder(1, .15, .20);
+		// right front arm
+		glPushMatrix();
+		glRotated(-45, 0.0, 1.0, 0.0);
+		glRotated(90, 1.0, 0.0, 0.0);
+		glTranslated(cos45, 1.3, 0);
+		glScaled(2, 5, 2);
+		drawSphere(0.15);
+		glRotated(-90, 1.0, 0.0, 0.0);
+		glRotated(-45, 0.0, 1.0, 0.0);
+		setDiffuseColor(0.28, 0.15, 0.03);
+		if (VAL(DETAIL) > 3.5) {
+			// right claw 1
+			glPushMatrix();
+			glRotated(-VAL(RF_CLAW), 1.0, 0.0, 0.0);
+			glTranslated(0, 0.075, 0.05);
+			glScaled(1 / 2.0, 1 / 3.0, 1 / 2.0);
+			drawCylinder(0.65, .13, .04);
+			glPopMatrix();
 
-	// right middle arm
-	glPushMatrix();
-	glRotated(-45, 0.0, 1.0, 0.0);
-	glTranslated(.73, 0, cos45);
-	drawCylinder(1, .15, .20);
-	// right front arm
-	glPushMatrix();
-	glRotated(-45, 0.0, 1.0, 0.0);
-	glRotated(90, 1.0, 0.0, 0.0);
-	glTranslated(cos45, 1.3, 0);
-	glScaled(2, 5, 2);
-	drawSphere(0.15);
-	glRotated(-90, 1.0, 0.0, 0.0);
-	glRotated(-45, 0.0, 1.0, 0.0);
-	setDiffuseColor(0.28, 0.15, 0.03);
+			// right claw 2
+			glPushMatrix();
+			glRotated(VAL(RF_CLAW), 1.0, 0.0, 0.0);
+			glTranslated(0, -0.075, 0.05);
+			glScaled(1 / 2.0, 1 / 3.0, 1 / 2.0);
+			drawCylinder(0.65, .13, .04);
+			glPopMatrix();
+		}
 
-	// right claw 1
-	glPushMatrix();
-	glRotated(-VAL(RF_CLAW), 1.0, 0.0, 0.0);
-	glTranslated(0, 0.075, 0.05);
-	glScaled(1 / 2.0, 1 / 3.0, 1 / 2.0);
-	drawCylinder(0.65, .13, .04);
-	glPopMatrix();
-
-	// right claw 2
-	glPushMatrix();
-	glRotated(VAL(RF_CLAW), 1.0, 0.0, 0.0);
-	glTranslated(0, -0.075, 0.05);
-	glScaled(1 / 2.0, 1 / 3.0, 1 / 2.0);
-	drawCylinder(0.65, .13, .04);
-	glPopMatrix();
-
-	glPopMatrix();
-	glPopMatrix();
-	glPopMatrix();
-	// end right arm
+		glPopMatrix();
+		glPopMatrix();
+		glPopMatrix();
+		// end right arm
+	}
 
 	// tail
 	glPushMatrix();
@@ -305,11 +335,20 @@ void ScorpionModel::draw() {
 		mc->drawMarchingCube();
 		// sting
 		glPushMatrix();
+		Mat4f root = getModelViewMatrix();
+		glPopMatrix();
+		glPushMatrix();
 		// setDiffuseColor(0, 1, 1);
 
 		glTranslated(0, curr_y, curr_z);
 		glRotated(-180 + curr_theta, 1, 0, 0);
+		
 		drawCylinder(5, 1, .25);
+		glTranslated(0, 0, 5);
+		glPushMatrix();
+		SpawnParticles(cam_matrix, root, VAL(PARTICLE_NUM));
+		
+		glPopMatrix();
 		glPopMatrix();
 	} else {
 		glScaled(1, 1.5, 1);
@@ -327,7 +366,6 @@ void ScorpionModel::draw() {
 		drawCylinder(0.75, .17, .17);
 		glRotated(VAL(TAIL), 1, 0, 0);
 		glTranslated(0, 0, -0.6);
-		
 		drawCylinder(0.75, .15, .15);
 		glPushMatrix();
 		Mat4f root = getModelViewMatrix();
@@ -335,25 +373,43 @@ void ScorpionModel::draw() {
 		// sting
 		glPushMatrix();
 		// setDiffuseColor(0, 1, 1);
-		
 		glTranslated(0, 0, -0.05);
 		drawCylinder(0.1, .05, .05);
 		drawTriangle(0, 0, -0.2, -0.2, 0, 0, 0.2, 0, 0);
 		glPushMatrix();
-		SpawnParticles(cam_matrix,root, 10);
+		SpawnParticles(cam_matrix, root, VAL(PARTICLE_NUM));
 		glPopMatrix();
 		glPopMatrix();
 	}
 	glPopMatrix();
 	// end tail
 
-	right_leg(leg_back);
-	right_leg(leg_mid);
-	right_leg(leg_front);
+	if (VAL(DETAIL) > 1.5) {
+		// legs
+		if (VAL(WINGS)) {
+			setDiffuseColor(0.78, 0.6, 0.8);
+			glPushMatrix();
+			glTranslated(-1, 0, 0);
+			glTranslated(0, 0, 0.75);
+			glRotated(-90, 1.0, 0, 0);
+			drawTorus(2, 1.75);
+			glPopMatrix();
+			glPushMatrix();
+			glTranslated(-1, 0, 0);
+			glTranslated(0, 0, 1.5);
+			glRotated(-90, 1.0, 0, 0);
+			drawTorus(2, 1.75);
+			glPopMatrix();
+		} else {
+			right_leg(leg_back);
+			right_leg(leg_mid);
+			right_leg(leg_front);
 
-	left_leg(leg_back);
-	left_leg(leg_mid);
-	left_leg(leg_front);
+			left_leg(leg_back);
+			left_leg(leg_mid);
+			left_leg(leg_front);
+		}
+	}
 
 	glPopMatrix();
 	endDraw();
@@ -477,10 +533,14 @@ int main() {
 	controls[LIGHT_Y] = ModelerControl("Light Position Y", -30, 30, 1, 1);
 	controls[LIGHT_Z] = ModelerControl("Light Position Z", -30, 30, 1, 5);
 	controls[LIGHT_INTENSITY] = ModelerControl("Light Intensity", 0, 5, 0.1, 1.3);
+	controls[DETAIL] = ModelerControl("Level of detail", 1, 4, 1, 4);
 	controls[FOG_DENSITY] = ModelerControl("Fog Density", 0, 4, 1, 0);
 	controls[METABALLS] = ModelerControl("Change to Metaballs", 0, 1, 1, 0);
-	// controls[MTBALL_STEP] = ModelerControl("Metaballs Step", 0.6, 1, 0.1f,
-	// 0.8f);
+	// controls[MTBALL_STEP] = ModelerControl("Metaballs Step", 0.6, 1, 0.1f, 0.8f);
+	controls[TEXTURE] = ModelerControl("Texture", 0, 1, 1, 0);
+	controls[WINGS] = ModelerControl("Levitating scorpion", 0, 1, 1, 0);
+	controls[PARTICLE_NUM] = ModelerControl("Number of particle", 1, 20, 1, 10);
+	
 	ParticleSystem* ps = new ParticleSystem();
 	ModelerApplication::Instance()->SetParticleSystem(ps);
 

@@ -2,7 +2,9 @@
 #include <FL/gl.h>
 #include <GL/glu.h>
 #include <cstdio>
-
+#ifndef M_PI
+	#define M_PI 3.141592653589793238462643383279502
+#endif
 // ********************************************************
 // Support functions from previous version of modeler
 // ********************************************************
@@ -413,4 +415,35 @@ void drawTriangle( double x1, double y1, double z1,
         glVertex3d( x3, y3, z3 );
         glEnd();
     }
+}
+
+void drawTorus(double R, double r) {
+	ModelerDrawState *mds = ModelerDrawState::Instance();
+	int divisions;
+
+	_setupOpenGl();
+
+	switch (mds->m_quality) {
+		case HIGH: divisions = 200; break;
+		case MEDIUM: divisions = 150; break;
+		case LOW: divisions = 100; break;
+		case POOR: divisions = 50; break;
+	}
+
+	if (mds->m_rayFile) {
+		_dump_current_modelview();
+		fprintf(mds->m_rayFile, "torus { outer_radius=%f; inner_radius=%f;\n", R, r);
+		_dump_current_material();
+		fprintf(mds->m_rayFile, "})\n");
+	} else {
+		int radius = (R + r) / 2;
+		for (int i = 0; i < divisions; i++) {
+			double angle = 2 * M_PI / divisions;
+			double degrees = angle * 180 / M_PI;
+			double cylinderLen = (2 * M_PI * radius) / divisions;
+			glTranslated(0, 0, cylinderLen);
+			glRotated(degrees, 0, 1.0, 0);
+			drawCylinder(cylinderLen * 1.4, R - r, R - r);
+		}
+	}
 }

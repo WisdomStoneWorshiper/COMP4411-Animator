@@ -97,6 +97,8 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 			bake_fps = t - last_update;
 			vector<int> delete_list;
 			for (int i = 0; i < par.size(); ++i) {
+
+
 				par[i].update(bake_fps);
 				if (par[i].get_life() <= 0) {
 					delete_list.push_back(i);

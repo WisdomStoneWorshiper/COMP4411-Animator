@@ -118,9 +118,9 @@ void SpawnParticles(Mat4f cameraTransform, Mat4f root, int num_of_par) {
 			p_pos[2] = pos[2];
 			Vec3d p_vel;
 			p_vel[0] = (rand() % 5) - 2.5;
-			p_vel[1] = 5;
+			p_vel[1] = 0;
 			if (VAL(METABALLS) == 1) {
-				p_vel[2] = vel_dir[2] * (rand() % 10) * 20;
+				p_vel[2] = vel_dir[2] * 10 + (rand() % 1);
 			} else {
 				p_vel[2] = vel_dir[2] * (rand() % 10) * 20;
 			}
@@ -170,8 +170,6 @@ void ScorpionModel::draw() {
 		glPopMatrix();
 		glEnable(GL_LIGHTING);
 	}
-
-	
 
 	// main body
 	setAmbientColor(.1f, .1f, .1f);
@@ -346,7 +344,7 @@ void ScorpionModel::draw() {
 		glRotated(-180 + curr_theta, 1, 0, 0);
 		
 		drawCylinder(5, 1, .25);
-		
+		glTranslated(0, 0, 5);
 		glPushMatrix();
 		SpawnParticles(cam_matrix, root, VAL(PARTICLE_NUM));
 		
